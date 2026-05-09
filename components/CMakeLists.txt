@@ -1,9 +1,13 @@
 set(src_dirs
     i2c_devices
+    wifi_manager
+    key
 )
 
 set(include_dirs
     i2c_devices
+    wifi_manager
+    key
 )
 
 set(required_components
@@ -16,6 +20,7 @@ set(required_components
     esp_http_server
     spiffs
     nvs_flash
+    json
 )
 
 idf_component_register(
