@@ -2,12 +2,14 @@ set(src_dirs
     i2c_devices
     wifi_manager
     key
+    lcd
 )
 
 set(include_dirs
     i2c_devices
     wifi_manager
     key
+    lcd
 )
 
 set(required_components
@@ -18,6 +20,7 @@ set(required_components
     esp_event
     esp_wifi
     esp_http_server
+    esp_lcd
     spiffs
     nvs_flash
     json
