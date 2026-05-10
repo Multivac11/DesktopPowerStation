@@ -24,6 +24,8 @@ set(required_components
     spiffs
     nvs_flash
     json
+    esp_lvgl_port
+    esp_driver_ppa
 )
 
 idf_component_register(

@@ -13,11 +13,6 @@ LcdRgb::~LcdRgb()
 // ================== 硬件 SPI 9-bit 初始化 ==================
 void LcdRgb::InitSpi()
 {
-    // 关键：GPIO42/41/40/39/38 是 JTAG 引脚，必须先释放
-    gpio_reset_pin(LCD_SPI_SDA_GPIO);
-    gpio_reset_pin(LCD_SPI_SCL_GPIO);
-    gpio_reset_pin(LCD_SPI_CS_GPIO);
-
     spi_bus_config_t buscfg = {};
     buscfg.mosi_io_num = LCD_SPI_SDA_GPIO;
     buscfg.miso_io_num = -1;
@@ -296,7 +291,7 @@ void LcdRgb::SendInitSequence()
 esp_err_t LcdRgb::InitRgbPanel()
 {
     esp_lcd_rgb_panel_config_t panel_config = {};
-    panel_config.clk_src = LCD_CLK_SRC_PLL240M;  // 博客验证的时钟源
+    panel_config.clk_src = LCD_CLK_SRC_PLL240M;
 
     panel_config.timings.pclk_hz = LCD_PCLK_MHZ * 1000 * 1000;
     panel_config.timings.h_res = LCD_H_RES;
@@ -308,7 +303,6 @@ esp_err_t LcdRgb::InitRgbPanel()
     panel_config.timings.vsync_back_porch = LCD_VSYNC_BACK;
     panel_config.timings.vsync_front_porch = LCD_VSYNC_FRONT;
 
-    // 关键：按博客验证的参数配置（与之前版本相反！）
     panel_config.timings.flags.hsync_idle_low = false;   // 空闲高电平
     panel_config.timings.flags.vsync_idle_low = false;   // 空闲高电平
     panel_config.timings.flags.de_idle_high = false;     // 空闲低电平（博客de_idle_high=0）
@@ -317,10 +311,8 @@ esp_err_t LcdRgb::InitRgbPanel()
 
     panel_config.data_width = 16;
     panel_config.bits_per_pixel = 16;
-    panel_config.num_fbs = 2;                             // 单缓冲
-    panel_config.bounce_buffer_size_px = LCD_H_RES * 10;  // 关闭 bounce buffer
-    panel_config.sram_trans_align = 4;
-    panel_config.psram_trans_align = 64;
+    panel_config.num_fbs = 2;
+    panel_config.bounce_buffer_size_px = LCD_H_RES * 40;
 
     panel_config.hsync_gpio_num = LCD_RGB_HSYNC_GPIO;
     panel_config.vsync_gpio_num = LCD_RGB_VSYNC_GPIO;
@@ -347,16 +339,17 @@ esp_err_t LcdRgb::InitRgbPanel()
 
     panel_config.flags.fb_in_psram = true;
     panel_config.flags.refresh_on_demand = false;
-    panel_config.flags.fb_in_psram = true;
-    // 其余 flags 默认 0
 
     ESP_RETURN_ON_ERROR(esp_lcd_new_rgb_panel(&panel_config, &panel_), TAG, "new rgb panel failed");
+
     ESP_RETURN_ON_ERROR(esp_lcd_panel_init(panel_), TAG, "panel init failed");
+    // esp_lcd_panel_swap_xy(panel_, true);
+    // esp_lcd_panel_mirror(panel_, true, false);
 
     return ESP_OK;
 }
 
-esp_err_t LcdRgb::Init()
+esp_err_t LcdRgb::LcdInit()
 {
     ESP_LOGI(TAG, "Init SPI...");
     InitSpi();
@@ -367,7 +360,6 @@ esp_err_t LcdRgb::Init()
     ESP_LOGI(TAG, "Init RGB panel...");
     ESP_RETURN_ON_ERROR(InitRgbPanel(), TAG, "RGB panel init failed");
 
-    // 背光 GPIO
     gpio_config_t bl_conf = {
         .pin_bit_mask = (1ULL << LCD_RGB_BL_GPIO),
         .mode = GPIO_MODE_OUTPUT,
@@ -386,4 +378,47 @@ void LcdRgb::SetBacklight(bool on)
 {
     gpio_set_level(LCD_RGB_BL_GPIO, on ? 1 : 0);
     ESP_LOGI(TAG, "Backlight %s", on ? "ON" : "OFF");
+}
+
+void LcdRgb::LvglPortInit()
+{
+    LcdInit();
+    const lvgl_port_cfg_t lvgl_cfg = {
+        .task_priority = 5,       /* LVGL task priority */
+        .task_stack = 16384,      /* LVGL task stack size */
+        .task_affinity = 0,       /* LVGL task pinned to core (-1 is no affinity) */
+        .task_max_sleep_ms = 500, /* Maximum sleep in LVGL task */
+        .timer_period_ms = 5      /* LVGL timer tick period in ms */
+    };
+    lvgl_port_init(&lvgl_cfg);
+
+    ESP_LOGD(TAG, "Add LCD screen");
+    lvgl_port_display_cfg_t disp_cfg = {};
+    disp_cfg.panel_handle = panel_;
+    disp_cfg.buffer_size = LCD_V_RES * LCD_H_RES;
+    disp_cfg.double_buffer = 1;
+    disp_cfg.hres = LCD_H_RES;
+    disp_cfg.vres = LCD_V_RES;
+    disp_cfg.monochrome = false;
+    disp_cfg.color_format = LV_COLOR_FORMAT_RGB565;
+    disp_cfg.rotation = {
+        .swap_xy = true,
+        .mirror_x = true,
+        .mirror_y = false,
+    };
+
+    disp_cfg.flags.buff_dma = true;
+    disp_cfg.flags.buff_spiram = true;
+    disp_cfg.flags.sw_rotate = true;
+    disp_cfg.flags.full_refresh = false;
+    disp_cfg.flags.direct_mode = false;
+    disp_cfg.flags.swap_bytes = false;
+
+    lvgl_port_display_rgb_cfg_t rgb_cfg = {.flags = {
+                                               .bb_mode = false,
+                                               .avoid_tearing = false,
+
+                                           }};
+    lvgl_display_ = lvgl_port_add_disp_rgb(&disp_cfg, &rgb_cfg);
+    lv_display_set_rotation(lvgl_display_, LV_DISPLAY_ROTATION_90);
 }

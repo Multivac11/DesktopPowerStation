@@ -5,6 +5,7 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_rgb.h"
 #include "esp_log.h"
+#include "esp_lvgl_port.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -44,7 +45,7 @@
 // ================== 屏幕时序参数 (376x960) ==================
 #define LCD_H_RES 376
 #define LCD_V_RES 960
-#define LCD_PCLK_MHZ 16  // 先降频到16MHz，稳定后再试20
+#define LCD_PCLK_MHZ 16
 
 #define LCD_HSYNC_PULSE 4
 #define LCD_HSYNC_BACK 8
@@ -57,7 +58,7 @@
 class LcdRgb
 {
    public:
-    static LcdRgb &GetInstance()
+    static LcdRgb& GetInstance()
     {
         static LcdRgb instance;
         return instance;
@@ -65,7 +66,8 @@ class LcdRgb
 
     ~LcdRgb();
 
-    esp_err_t Init();
+    esp_err_t LcdInit();
+    void LvglPortInit();
     void SetBacklight(bool on);
     esp_lcd_panel_handle_t GetPanel() const { return panel_; }
 
@@ -82,4 +84,5 @@ class LcdRgb
    private:
     spi_device_handle_t spi_dev_ = nullptr;
     esp_lcd_panel_handle_t panel_ = nullptr;
+    lv_display_t* lvgl_display_ = nullptr;
 };

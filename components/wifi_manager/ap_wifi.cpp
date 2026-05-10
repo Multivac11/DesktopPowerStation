@@ -288,10 +288,10 @@ void ApWifi::ApWifiInit()
     auto_connect_exit_sem_ = xSemaphoreCreateBinary();
 
     /* 上电即启动自动连接 */
-    xTaskCreatePinnedToCore(AutoConnectTask, "AutoConnect", 8192, this, 5, &auto_connect_task_handle_, 0);
+    xTaskCreatePinnedToCore(AutoConnectTask, "AutoConnect", 8192, this, 5, &auto_connect_task_handle_, 1);
 
-    xTaskCreatePinnedToCore(ApWifiTask, "ApWifiTask", 4096, nullptr, 5, nullptr, 0);
-    xTaskCreatePinnedToCore(KeyListenerTask, "KeyListenerTask", 4096, this, 5, nullptr, 0);
+    xTaskCreatePinnedToCore(ApWifiTask, "ApWifiTask", 4096, nullptr, 5, nullptr, 1);
+    xTaskCreatePinnedToCore(KeyListenerTask, "KeyListenerTask", 4096, this, 5, nullptr, 1);
 
     /* ---------- 注册断线重连回调 ---------- */
     WifiManager::GetInstance().SetDisconnectCallback([this]() {
