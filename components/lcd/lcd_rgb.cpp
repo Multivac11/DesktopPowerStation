@@ -388,36 +388,37 @@ void LcdRgb::LvglPortInit()
         .task_stack = 16384,      /* LVGL task stack size */
         .task_affinity = 0,       /* LVGL task pinned to core (-1 is no affinity) */
         .task_max_sleep_ms = 500, /* Maximum sleep in LVGL task */
-        .timer_period_ms = 16     /* LVGL timer tick period in ms */
+        .timer_period_ms = 20     /* LVGL timer tick period in ms */
     };
     lvgl_port_init(&lvgl_cfg);
 
     ESP_LOGD(TAG, "Add LCD screen");
     lvgl_port_display_cfg_t disp_cfg = {};
     disp_cfg.panel_handle = panel_;
-    disp_cfg.buffer_size = 240 * LCD_H_RES;
+    disp_cfg.buffer_size = LCD_H_RES * LCD_V_RES;
     disp_cfg.double_buffer = 1;
     disp_cfg.hres = LCD_H_RES;
     disp_cfg.vres = LCD_V_RES;
     disp_cfg.monochrome = false;
     disp_cfg.color_format = LV_COLOR_FORMAT_RGB565;
     disp_cfg.rotation = {
-        .swap_xy = false,
-        .mirror_x = false,
+        .swap_xy = true,
+        .mirror_x = true,
         .mirror_y = false,
     };
 
     disp_cfg.flags.buff_dma = true;
     disp_cfg.flags.buff_spiram = true;
-    disp_cfg.flags.sw_rotate = false;
-    disp_cfg.flags.full_refresh = true;
-    disp_cfg.flags.direct_mode = true;
+    disp_cfg.flags.sw_rotate = true;
+    disp_cfg.flags.full_refresh = false;
+    disp_cfg.flags.direct_mode = false;
     disp_cfg.flags.swap_bytes = false;
 
     lvgl_port_display_rgb_cfg_t rgb_cfg = {.flags = {
-                                               .bb_mode = true,
-                                               .avoid_tearing = true,
+                                               .bb_mode = false,
+                                               .avoid_tearing = false,
 
                                            }};
     lvgl_display_ = lvgl_port_add_disp_rgb(&disp_cfg, &rgb_cfg);
+    lv_display_set_rotation(lvgl_display_, LV_DISPLAY_ROTATION_90);
 }

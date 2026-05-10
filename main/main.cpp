@@ -16,6 +16,6 @@ extern "C" void app_main(void)
     // SceneManager::GetInstance().SceneManagerInit();
     LcdRgb::GetInstance().LvglPortInit();
     lvgl_port_lock(0);
-    lv_demo_benchmark();
+    lv_demo_music();
     lvgl_port_unlock();
 }

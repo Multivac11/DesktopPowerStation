@@ -45,7 +45,7 @@
 // ================== 屏幕时序参数 (376x960) ==================
 #define LCD_H_RES 376
 #define LCD_V_RES 960
-#define LCD_PCLK_MHZ 16
+#define LCD_PCLK_MHZ 24
 
 #define LCD_HSYNC_PULSE 4
 #define LCD_HSYNC_BACK 8
