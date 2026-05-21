@@ -1,15 +1,23 @@
 set(src_dirs
-    i2c_devices
+    device
+    device/i2c_device
+    device/i2c_device/ina226
+    device/i2c_device/tmp112
     wifi_manager
     key
     lcd
+    power_monitor
 )
 
 set(include_dirs
-    i2c_devices
+    device
+    device/i2c_device
+    device/i2c_device/ina226
+    device/i2c_device/tmp112
     wifi_manager
     key
     lcd
+    power_monitor
 )
 
 set(required_components

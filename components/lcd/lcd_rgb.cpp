@@ -395,7 +395,7 @@ void LcdRgb::LvglPortInit()
     ESP_LOGD(TAG, "Add LCD screen");
     lvgl_port_display_cfg_t disp_cfg = {};
     disp_cfg.panel_handle = panel_;
-    disp_cfg.buffer_size = LCD_H_RES * LCD_V_RES;
+    disp_cfg.buffer_size = 10 * LCD_V_RES;
     disp_cfg.double_buffer = 1;
     disp_cfg.hres = LCD_H_RES;
     disp_cfg.vres = LCD_V_RES;
@@ -409,16 +409,16 @@ void LcdRgb::LvglPortInit()
 
     disp_cfg.flags.buff_dma = true;
     disp_cfg.flags.buff_spiram = true;
-    disp_cfg.flags.sw_rotate = true;
+    disp_cfg.flags.sw_rotate = false;
     disp_cfg.flags.full_refresh = false;
-    disp_cfg.flags.direct_mode = false;
+    disp_cfg.flags.direct_mode = true;
     disp_cfg.flags.swap_bytes = false;
 
     lvgl_port_display_rgb_cfg_t rgb_cfg = {.flags = {
-                                               .bb_mode = false,
-                                               .avoid_tearing = false,
+                                               .bb_mode = true,
+                                               .avoid_tearing = true,
 
                                            }};
     lvgl_display_ = lvgl_port_add_disp_rgb(&disp_cfg, &rgb_cfg);
-    lv_display_set_rotation(lvgl_display_, LV_DISPLAY_ROTATION_90);
+    // lv_display_set_rotation(lvgl_display_, LV_DISPLAY_ROTATION_90);
 }
