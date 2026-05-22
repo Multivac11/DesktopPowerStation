@@ -121,6 +121,84 @@ void LcdDriver::FillRect(int x, int y, int w, int h, uint16_t color)
     }
 }
 
+// ================== 圆角矩形边框 ==================
+void LcdDriver::DrawRoundRect(int x, int y, int w, int h, int r, uint16_t color)
+{
+    if (r <= 0) { DrawRect(x, y, w, h, color); return; }
+    int d = r + r;
+    if (d > w) r = w / 2;
+    if (d > h) r = h / 2;
+
+    DrawHLine(x + r, y, w - 2 * r, color);
+    DrawHLine(x + r, y + h - 1, w - 2 * r, color);
+    DrawVLine(x, y + r, h - 2 * r, color);
+    DrawVLine(x + w - 1, y + r, h - 2 * r, color);
+
+    struct Corner { int cx, cy, sx, sy; };
+    Corner corners[4] = {
+        {x + r,         y + r,         -1, -1},
+        {x + w - 1 - r, y + r,          1, -1},
+        {x + r,         y + h - 1 - r, -1,  1},
+        {x + w - 1 - r, y + h - 1 - r,  1,  1},
+    };
+    for (auto& c : corners)
+    {
+        int px = 0, py = r, err = 3 - 2 * r;
+        while (px <= py)
+        {
+            DrawPixel(c.cx + c.sx * py, c.cy + c.sy * px, color);
+            DrawPixel(c.cx + c.sx * px, c.cy + c.sy * py, color);
+            if (err < 0) err += 4 * px + 6;
+            else { err += 4 * (px - py) + 10; --py; }
+            ++px;
+        }
+    }
+}
+
+// ================== 填充圆角矩形 ==================
+void LcdDriver::FillRoundRect(int x, int y, int w, int h, int r, uint16_t color)
+{
+    if (r <= 0) { FillRect(x, y, w, h, color); return; }
+    int d = r + r;
+    if (d > w) r = w / 2;
+    if (d > h) r = h / 2;
+
+    FillRect(x, y + r, w, h - 2 * r, color);
+    FillRect(x + r, y, w - 2 * r, r, color);
+    FillRect(x + r, y + h - r, w - 2 * r, r, color);
+
+    struct Corner { int cx, cy, sx, sy; };
+    Corner corners[4] = {
+        {x + r,         y + r,         -1, -1},
+        {x + w - 1 - r, y + r,          1, -1},
+        {x + r,         y + h - 1 - r, -1,  1},
+        {x + w - 1 - r, y + h - 1 - r,  1,  1},
+    };
+    for (auto& c : corners)
+    {
+        int px = 0, py = r, err = 3 - 2 * r;
+        while (px <= py)
+        {
+            int x0, len0, x1, len1;
+            if (c.sx < 0)
+            {
+                x0 = c.cx - py; len0 = py + 1;
+                x1 = c.cx - px; len1 = px + 1;
+            }
+            else
+            {
+                x0 = c.cx; len0 = py + 1;
+                x1 = c.cx; len1 = px + 1;
+            }
+            DrawHLine(x0, c.cy + c.sy * px, len0, color);
+            DrawHLine(x1, c.cy + c.sy * py, len1, color);
+            if (err < 0) err += 4 * px + 6;
+            else { err += 4 * (px - py) + 10; --py; }
+            ++px;
+        }
+    }
+}
+
 // ================== 圆形边框 (Bresenham) ==================
 void LcdDriver::DrawCircle(int cx, int cy, int r, uint16_t color)
 {

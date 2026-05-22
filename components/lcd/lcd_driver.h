@@ -45,6 +45,10 @@ class LcdDriver
 
     void FillRect(int x, int y, int w, int h, uint16_t color);
 
+    void DrawRoundRect(int x, int y, int w, int h, int r, uint16_t color);
+
+    void FillRoundRect(int x, int y, int w, int h, int r, uint16_t color);
+
     void DrawCircle(int cx, int cy, int r, uint16_t color);
 
     void FillCircle(int cx, int cy, int r, uint16_t color);

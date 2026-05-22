@@ -128,10 +128,10 @@ void SceneManager::UIManager()
     lcd.DrawString(W - 120, 4, "OK", kColorWhite, kColorBlue, kFont16x32);
 
     // 左侧: 电池 (标题 16x32, 数据 8x16)
-    lcd.DrawRect(5, 42, 310, H - 50, kColorGray);
+    lcd.DrawRoundRect(5, 42, 310, H - 50, 12, kColorGray);
     lcd.DrawString(15, 48, "Battery", kColorWhite, kColorBlack, kFont16x32);
-    lcd.FillRect(20, 88, 200, 20, kColorGreen);
-    lcd.DrawRect(20, 88, 200, 20, kColorWhite);
+    lcd.FillRoundRect(20, 88, 200, 20, 4, kColorGreen);
+    lcd.DrawRoundRect(20, 88, 200, 20, 4, kColorWhite);
     lcd.DrawString(25, 90, "SOC:85%", kColorBlack, kColorGreen, kFont8x16);
     lcd.DrawString(20, 118, "Volt:25.2V", kColorYellow, kColorBlack, kFont8x16);
     lcd.DrawString(20, 138, "Curr:5.3A", kColorYellow, kColorBlack, kFont8x16);
@@ -141,7 +141,7 @@ void SceneManager::UIManager()
     lcd.DrawString(20, 218, "Status:OK", kColorGreen, kColorBlack, kFont8x16);
 
     // 中间: 太阳能
-    lcd.DrawRect(322, 42, 310, H - 50, kColorGray);
+    lcd.DrawRoundRect(322, 42, 310, H - 50, 12, kColorGray);
     lcd.DrawString(332, 48, "Solar", kColorWhite, kColorBlack, kFont16x32);
     lcd.DrawString(332, 88, "PV:18.5V", kColorOrange, kColorBlack, kFont8x16);
     lcd.DrawString(332, 108, "Cur:2.1A", kColorOrange, kColorBlack, kFont8x16);
@@ -151,7 +151,7 @@ void SceneManager::UIManager()
     lcd.DrawString(332, 188, "1.2kWh", kColorCyan, kColorBlack, kFont8x16);
 
     // 右侧: 输出
-    lcd.DrawRect(640, 42, 315, H - 50, kColorGray);
+    lcd.DrawRoundRect(640, 42, 315, H - 50, 12, kColorGray);
     lcd.DrawString(650, 48, "Output", kColorWhite, kColorBlack, kFont16x32);
     lcd.DrawString(650, 88, "USB1:20V", kColorCyan, kColorBlack, kFont8x16);
     lcd.DrawString(650, 108, "USB2:12V", kColorCyan, kColorBlack, kFont8x16);
