@@ -6,6 +6,7 @@ set(src_dirs
     wifi_manager
     key
     lcd
+    lcd/font
     fan
     power_monitor
 )
@@ -18,6 +19,7 @@ set(include_dirs
     wifi_manager
     key
     lcd
+    lcd/font
     fan
     power_monitor
 )

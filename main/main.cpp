@@ -5,8 +5,6 @@
 #include "device_init.h"
 #include "fan_ctrl.h"
 #include "key.h"
-#include "lcd_rgb.h"
-#include "lv_demos.h"
 #include "power_monitor.h"
 #include "scene_manager.h"
 
