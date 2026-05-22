@@ -5,6 +5,8 @@
 #include "driver/i2c_master.h"
 #include "esp_log.h"
 #include "i2c_device.h"
+#include "ina226.h"
+#include "tmp112.h"
 
 class INA226;
 
@@ -36,7 +38,7 @@ class I2CBusManager
         for (auto& dev : devices_)
         {
             auto* i2c = static_cast<I2CDevice*>(dev.get());
-            if (i2c->GetAddress() == addr) return dynamic_cast<T*>(dev.get());
+            if (i2c->GetAddress() == addr) return static_cast<T*>(dev.get());
         }
         return nullptr;
     }

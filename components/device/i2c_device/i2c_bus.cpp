@@ -1,8 +1,5 @@
 #include "i2c_bus.h"
 
-#include "ina226.h"
-#include "tmp112.h"
-
 static const char* TAG = "I2C";
 
 bool I2CBusManager::Init()

@@ -32,6 +32,11 @@ void DeviceInit::Init()
         ESP_LOGE(TAG, "INA226 0x43 register failed");
         return;
     }
+    if (!I2CBusManager::GetInstance().RegisterINA226(0x44))
+    {
+        ESP_LOGE(TAG, "INA226 0x44 register failed");
+        return;
+    }
     if (!I2CBusManager::GetInstance().RegisterINA226(0x45))
     {
         ESP_LOGE(TAG, "INA226 0x45 register failed");

@@ -3,6 +3,7 @@
 
 #include "ap_wifi.h"
 #include "device_init.h"
+#include "fan_ctrl.h"
 #include "key.h"
 #include "lcd_rgb.h"
 #include "lv_demos.h"
@@ -13,8 +14,9 @@ extern "C" void app_main(void)
 {
     StatusKey::GetInstance().InitKeys();
     DeviceInit::GetInstance().Init();
-    PowerMonitor::GetInstance().PowerMonitorInit();
+    FanCtrl::GetInstance().FanInit();
     ApWifi::GetInstance().ApWifiInit();
+    PowerMonitor::GetInstance().PowerMonitorInit();
     // SceneManager::GetInstance().SceneManagerInit();
     // LcdRgb::GetInstance().LvglPortInit();
     // lvgl_port_lock(0);
