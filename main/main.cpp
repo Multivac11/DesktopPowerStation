@@ -17,7 +17,7 @@ extern "C" void app_main(void)
     FanCtrl::GetInstance().FanInit();
     ApWifi::GetInstance().ApWifiInit();
     PowerMonitor::GetInstance().PowerMonitorInit();
-    // SceneManager::GetInstance().SceneManagerInit();
+    SceneManager::GetInstance().SceneManagerInit();
     // LcdRgb::GetInstance().LvglPortInit();
     // lvgl_port_lock(0);
     // lv_demo_music();

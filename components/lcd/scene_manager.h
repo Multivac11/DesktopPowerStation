@@ -35,8 +35,11 @@ class SceneManager
     void UIManager();
 
     volatile bool vsync_flag_ = false;
+
     void *fb_[2] = {nullptr, nullptr};
-    esp_lcd_panel_handle_t panel_ = nullptr;
 
    private:
+    esp_lcd_panel_handle_t panel_ = nullptr;
+
+    uint16_t *buf_ = nullptr;
 };

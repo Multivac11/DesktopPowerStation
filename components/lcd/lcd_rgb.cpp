@@ -291,7 +291,7 @@ void LcdRgb::SendInitSequence()
 esp_err_t LcdRgb::InitRgbPanel()
 {
     esp_lcd_rgb_panel_config_t panel_config = {};
-    panel_config.clk_src = LCD_CLK_SRC_PLL240M;
+    panel_config.clk_src = LCD_CLK_SRC_PLL240M;  // 博客验证的时钟源
 
     panel_config.timings.pclk_hz = LCD_PCLK_MHZ * 1000 * 1000;
     panel_config.timings.h_res = LCD_H_RES;
@@ -303,6 +303,7 @@ esp_err_t LcdRgb::InitRgbPanel()
     panel_config.timings.vsync_back_porch = LCD_VSYNC_BACK;
     panel_config.timings.vsync_front_porch = LCD_VSYNC_FRONT;
 
+    // 关键：按博客验证的参数配置（与之前版本相反！）
     panel_config.timings.flags.hsync_idle_low = false;   // 空闲高电平
     panel_config.timings.flags.vsync_idle_low = false;   // 空闲高电平
     panel_config.timings.flags.de_idle_high = false;     // 空闲低电平（博客de_idle_high=0）
@@ -311,8 +312,10 @@ esp_err_t LcdRgb::InitRgbPanel()
 
     panel_config.data_width = 16;
     panel_config.bits_per_pixel = 16;
-    panel_config.num_fbs = 2;
-    panel_config.bounce_buffer_size_px = LCD_H_RES * 40;
+    panel_config.num_fbs = 2;                             // 单缓冲
+    panel_config.bounce_buffer_size_px = LCD_H_RES * 10;  // 关闭 bounce buffer
+    panel_config.sram_trans_align = 4;
+    panel_config.psram_trans_align = 64;
 
     panel_config.hsync_gpio_num = LCD_RGB_HSYNC_GPIO;
     panel_config.vsync_gpio_num = LCD_RGB_VSYNC_GPIO;
@@ -339,12 +342,10 @@ esp_err_t LcdRgb::InitRgbPanel()
 
     panel_config.flags.fb_in_psram = true;
     panel_config.flags.refresh_on_demand = false;
+    panel_config.flags.fb_in_psram = true;
 
     ESP_RETURN_ON_ERROR(esp_lcd_new_rgb_panel(&panel_config, &panel_), TAG, "new rgb panel failed");
-
     ESP_RETURN_ON_ERROR(esp_lcd_panel_init(panel_), TAG, "panel init failed");
-    // esp_lcd_panel_swap_xy(panel_, true);
-    // esp_lcd_panel_mirror(panel_, true, false);
 
     return ESP_OK;
 }
