@@ -45,15 +45,15 @@
 // ================== 屏幕时序参数 (376x960) ==================
 #define LCD_H_RES 376
 #define LCD_V_RES 960
-#define LCD_PCLK_MHZ 24
+#define LCD_PCLK_MHZ 20
 
-#define LCD_HSYNC_PULSE 4
-#define LCD_HSYNC_BACK 8
-#define LCD_HSYNC_FRONT 8
+#define LCD_HSYNC_PULSE 2
+#define LCD_HSYNC_BACK 4
+#define LCD_HSYNC_FRONT 12
 
 #define LCD_VSYNC_PULSE 4
-#define LCD_VSYNC_BACK 8
-#define LCD_VSYNC_FRONT 8
+#define LCD_VSYNC_BACK 4
+#define LCD_VSYNC_FRONT 19
 
 class LcdRgb
 {

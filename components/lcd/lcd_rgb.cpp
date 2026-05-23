@@ -291,7 +291,7 @@ void LcdRgb::SendInitSequence()
 esp_err_t LcdRgb::InitRgbPanel()
 {
     esp_lcd_rgb_panel_config_t panel_config = {};
-    panel_config.clk_src = LCD_CLK_SRC_PLL240M;  // 博客验证的时钟源
+    panel_config.clk_src = LCD_CLK_SRC_PLL240M;
 
     panel_config.timings.pclk_hz = LCD_PCLK_MHZ * 1000 * 1000;
     panel_config.timings.h_res = LCD_H_RES;
@@ -306,8 +306,8 @@ esp_err_t LcdRgb::InitRgbPanel()
     // 关键：按博客验证的参数配置（与之前版本相反！）
     panel_config.timings.flags.hsync_idle_low = false;   // 空闲高电平
     panel_config.timings.flags.vsync_idle_low = false;   // 空闲高电平
-    panel_config.timings.flags.de_idle_high = false;     // 空闲低电平（博客de_idle_high=0）
-    panel_config.timings.flags.pclk_active_neg = false;  // 上升沿有效（博客pclk_active_neg=0）
+    panel_config.timings.flags.de_idle_high = false;     // 空闲低电平
+    panel_config.timings.flags.pclk_active_neg = false;  // 上升沿有效
     panel_config.timings.flags.pclk_idle_high = false;   // 空闲高电平
 
     panel_config.data_width = 16;

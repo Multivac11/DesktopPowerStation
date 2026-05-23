@@ -96,8 +96,8 @@ void SceneManager::UIManager()
     lcd.FillScreen(kColorBlack);
 
     // 屏幕外框
-    lcd.DrawRect(0, 0, W, H, kPhosphorDim);
-    lcd.DrawRect(1, 1, W - 2, H - 2, kPhosphorDim);
+    lcd.DrawRect(0, 0, W - 2, H, kPhosphorDim);
+    lcd.DrawRect(1, 1, W - 4, H - 2, kPhosphorDim);
     for (int i = 0; i < 6; ++i)
     {
         lcd.DrawPixel(2 + i, 2, kPhosphor);
@@ -118,7 +118,7 @@ void SceneManager::UIManager()
     // 卡片
     for (int i = 0; i < 5; ++i)
     {
-        int cx = 6 + i * (kCardW + kCardGap);
+        int cx = 4 + i * (kCardW + kCardGap);
         lcd.FillRoundRect(cx, kCardY, kCardW, kCardH, kCardR, kCardFill);
         lcd.DrawRoundRect(cx, kCardY, kCardW, kCardH, kCardR, kPhosphorDim);
         lcd.DrawRoundRect(cx + 2, kCardY + 2, kCardW - 4, kCardH - 4, kCardR - 2, kPhosphor);
@@ -129,7 +129,7 @@ void SceneManager::UIManager()
     // CH 标签
     for (int i = 0; i < 5; ++i)
     {
-        int cx = 6 + i * (kCardW + kCardGap);
+        int cx = 4 + i * (kCardW + kCardGap);
         char label[8];
         snprintf(label, sizeof(label), "CH-%d >>", i + 1);
         lcd.DrawString(cx + 14, kCardY + 7, label, kPhosphor, kCardFill, kFont8x16);
@@ -179,8 +179,8 @@ void SceneManager::UIManager()
         {
             snprintf(buf, sizeof(buf), "T:%.1fC  F:%.0f%%", temp, fan);
             int tw = strlen(buf) * 16;
-            lcd.FillRect(W - tw - 20, 7, tw + 20, 30, kColorBlack);
-            lcd.DrawString(W - tw - 28, 10, buf, kPhosphor, kColorBlack, kFont16x32);
+            lcd.FillRect(W - tw - 28, 7, tw + 20, 30, kColorBlack);
+            lcd.DrawString(W - tw - 36, 10, buf, kPhosphor, kColorBlack, kFont16x32);
             old_temp = temp;
             old_fan = fan;
             dirty = true;
@@ -189,7 +189,7 @@ void SceneManager::UIManager()
         // 5 张卡片
         for (int i = 0; i < 5; ++i)
         {
-            int cx = 6 + i * (kCardW + kCardGap);
+            int cx = 4 + i * (kCardW + kCardGap);
             auto& port = ev.ina_data_[i];
             if (port.ina_ == nullptr) continue;
 
@@ -237,7 +237,7 @@ void SceneManager::UIManager()
         }
 
         if (dirty) lcd.Flush(panel_);
-        vTaskDelay(pdMS_TO_TICKS(70));
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
