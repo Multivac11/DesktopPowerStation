@@ -102,12 +102,12 @@ void SceneManager::UIManager()
     {
         lcd.DrawPixel(2 + i, 2, kPhosphor);
         lcd.DrawPixel(2, 2 + i, kPhosphor);
-        lcd.DrawPixel(W - 3 - i, 2, kPhosphor);
-        lcd.DrawPixel(W - 3, 2 + i, kPhosphor);
+        lcd.DrawPixel(W - 5 - i, 2, kPhosphor);
+        lcd.DrawPixel(W - 5, 2 + i, kPhosphor);
         lcd.DrawPixel(2 + i, H - 3, kPhosphor);
         lcd.DrawPixel(2, H - 3 - i, kPhosphor);
-        lcd.DrawPixel(W - 3 - i, H - 3, kPhosphor);
-        lcd.DrawPixel(W - 3, H - 3 - i, kPhosphor);
+        lcd.DrawPixel(W - 5 - i, H - 3, kPhosphor);
+        lcd.DrawPixel(W - 5, H - 3 - i, kPhosphor);
     }
 
     // 顶部标题分隔线
@@ -123,7 +123,6 @@ void SceneManager::UIManager()
         lcd.DrawRoundRect(cx, kCardY, kCardW, kCardH, kCardR, kPhosphorDim);
         lcd.DrawRoundRect(cx + 2, kCardY + 2, kCardW - 4, kCardH - 4, kCardR - 2, kPhosphor);
         DrawCornerBrackets(lcd, cx, kCardY, kCardW, kCardH, kPhosphor);
-        DrawScanlines(lcd, cx + 8, kCardY + 16, kCardW - 16, kCardH - 32);
     }
 
     // CH 标签
@@ -133,6 +132,12 @@ void SceneManager::UIManager()
         char label[8];
         snprintf(label, sizeof(label), "CH-%d >>", i + 1);
         lcd.DrawString(cx + 14, kCardY + 7, label, kPhosphor, kCardFill, kFont8x16);
+    }
+
+    for (int i = 0; i < 5; ++i)
+    {
+        int cx = 4 + i * (kCardW + kCardGap);
+        DrawScanlines(lcd, cx + 8, kCardY + 20, kCardW - 16, kCardH - 32);
     }
 
     lcd.Flush(panel_);
@@ -202,10 +207,10 @@ void SceneManager::UIManager()
             if (port.bus_voltage_ != old_v[i])
             {
                 lcd.FillRect(x - 2, vy - 2, 164, 74, kCardFill);
-                DrawScanlines(lcd, x - 2, vy - 2, 164, 74);
                 snprintf(buf, sizeof(buf), "%.2f", port.bus_voltage_);
                 lcd.DrawString(x, vy, buf, kPhosphor, kCardFill, kFont24x48);
                 lcd.DrawString(x + 4 * 24 + 24, vy + 14, "[V]", kPhosphorDim, kCardFill, kFont16x32);
+                DrawScanlines(lcd, x - 2, vy - 2, 169, 74);
                 DrawSegmentedBar(lcd, x, vy + 52, 20, 6, 12, 2, port.bus_voltage_ / 20.0f, kBarHi);
                 old_v[i] = port.bus_voltage_;
                 dirty = true;
@@ -214,10 +219,10 @@ void SceneManager::UIManager()
             if (port.current_ != old_a[i])
             {
                 lcd.FillRect(x - 2, ay - 2, 164, 74, kCardFill);
-                DrawScanlines(lcd, x - 2, ay - 2, 164, 74);
                 snprintf(buf, sizeof(buf), "%.3f", port.current_);
                 lcd.DrawString(x, ay, buf, kPhosphor, kCardFill, kFont24x48);
                 lcd.DrawString(x + 4 * 24 + 24, ay + 14, "[A]", kPhosphorDim, kCardFill, kFont16x32);
+                DrawScanlines(lcd, x - 2, ay - 2, 169, 74);
                 DrawSegmentedBar(lcd, x, ay + 52, 20, 6, 12, 2, port.current_ / 7.0f, kBarHi);
                 old_a[i] = port.current_;
                 dirty = true;
@@ -226,10 +231,10 @@ void SceneManager::UIManager()
             if (port.power_ != old_w[i])
             {
                 lcd.FillRect(x - 2, wy - 2, 164, 74, kCardFill);
-                DrawScanlines(lcd, x - 2, wy - 2, 164, 74);
                 snprintf(buf, sizeof(buf), "%.2f", port.power_);
                 lcd.DrawString(x, wy, buf, kPhosphor, kCardFill, kFont24x48);
                 lcd.DrawString(x + 4 * 24 + 24, wy + 14, "[W]", kPhosphorDim, kCardFill, kFont16x32);
+                DrawScanlines(lcd, x - 2, wy - 2, 169, 74);
                 DrawSegmentedBar(lcd, x, wy + 52, 20, 6, 12, 2, port.power_ / 140.0f, kBarHi);
                 old_w[i] = port.power_;
                 dirty = true;
