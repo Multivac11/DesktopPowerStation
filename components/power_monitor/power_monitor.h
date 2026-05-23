@@ -6,6 +6,9 @@
 #include "freertos/task.h"
 #include "i2c_bus.h"
 
+#define MAX_LISTENERS 10
+#define MAX_INA 5
+
 class PowerMonitor
 {
    public:
@@ -24,6 +27,12 @@ class PowerMonitor
         float power_ = 0.0f;
     };
 
+    struct Event
+    {
+        MonitorData bus_data_;
+        MonitorData ina_data_[MAX_INA];
+    };
+
     PowerMonitor() = default;
 
     ~PowerMonitor() = default;
@@ -34,8 +43,18 @@ class PowerMonitor
 
     void Monitor();
 
+    bool RegisterListener(QueueHandle_t queue);
+
+    bool UnregisterListener(QueueHandle_t queue);
+
    private:
     MonitorData bus_data_;
 
-    MonitorData ina_data_[5] = {0};
+    MonitorData ina_data_[MAX_INA] = {0};
+
+    Event event_;
+
+    QueueHandle_t listeners_[MAX_LISTENERS] = {};
+
+    uint8_t listener_count_ = 0;
 };

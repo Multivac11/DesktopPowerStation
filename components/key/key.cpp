@@ -132,7 +132,8 @@ void StatusKey::ScanKeys()
         {
             if (listeners_[i])
             {
-                xQueueOverwrite(listeners_[i], &ev_);
+                Event *p = &ev_;
+                xQueueOverwrite(listeners_[i], &p);
             }
         }
     }

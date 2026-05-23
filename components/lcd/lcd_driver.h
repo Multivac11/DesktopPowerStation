@@ -17,6 +17,7 @@ static constexpr uint16_t kColorBlue = 0x001F;
 static constexpr uint16_t kColorYellow = 0xFFE0;
 static constexpr uint16_t kColorCyan = 0x07FF;
 static constexpr uint16_t kColorMagenta = 0xF81F;
+static constexpr uint16_t kColorSkyBlue = 0x055F;  // #00a8ff
 static constexpr uint16_t kColorGray = 0x8410;
 static constexpr uint16_t kColorOrange = 0xFD20;
 

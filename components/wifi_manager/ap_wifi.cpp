@@ -255,6 +255,8 @@ void ApWifi::ApWifiTask(void *pvParameters)
                 WsServer::GetInstance().WebWsStop();
                 esp_wifi_set_mode(WIFI_MODE_STA);
                 ESP_LOGI("ApWifi", "Switched to STA mode, AP closed");
+
+                ap_mode_requested_ = false;
             }
             /* 失败时不关闭 WebSocket，让用户可以返回重试 */
         }
@@ -268,14 +270,14 @@ void ApWifi::KeyListenerTask(void *pvParameters)
 
 void ApWifi::KeyListener()
 {
-    QueueHandle_t q = xQueueCreate(1, sizeof(StatusKey::Event));
+    QueueHandle_t q = xQueueCreate(1, sizeof(StatusKey::Event *));
     StatusKey::GetInstance().RegisterListener(q);
-    StatusKey::Event ev;
+    StatusKey::Event *ev = nullptr;
     while (true)
     {
         if (xQueueReceive(q, &ev, portMAX_DELAY) == pdTRUE)
         {
-            if (ev.key[0] == StatusKey::KEY_LONG && ev.key[2] == StatusKey::KEY_LONG)
+            if (ev->key[0] == StatusKey::KEY_LONG && ev->key[2] == StatusKey::KEY_LONG)
             {
                 ESP_LOGI("ApWifi", "key3 and key1 long, enter AP mode");
                 ap_mode_requested_ = true;
@@ -414,7 +416,7 @@ void ApWifi::EnterApMode()
         xSemaphoreTake(auto_connect_exit_sem_, pdMS_TO_TICKS(5000));
         auto_connect_task_handle_ = nullptr;
     }
-    ap_mode_requested_ = false;
+    // ap_mode_requested_ = false;
 
     /* 清空上次配网结果缓存 */
     has_pending_result_ = false;

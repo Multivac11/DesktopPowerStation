@@ -312,7 +312,7 @@ esp_err_t LcdRgb::InitRgbPanel()
 
     panel_config.data_width = 16;
     panel_config.bits_per_pixel = 16;
-    panel_config.num_fbs = 2;                             // 单缓冲
+    panel_config.num_fbs = 2;
     panel_config.bounce_buffer_size_px = LCD_H_RES * 10;  // 关闭 bounce buffer
     panel_config.sram_trans_align = 4;
     panel_config.psram_trans_align = 64;

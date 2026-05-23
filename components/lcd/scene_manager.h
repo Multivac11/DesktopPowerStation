@@ -10,6 +10,7 @@
 #include "freertos/task.h"
 #include "lcd_driver.h"
 #include "lcd_rgb.h"
+#include "power_monitor.h"
 
 class SceneManager
 {
@@ -24,11 +25,18 @@ class SceneManager
     ~SceneManager() = default;
 
     void SceneManagerInit();
+
     static void UIManagerTask(void*);
+
+    static void MonitorListenerTask(void*);
+
     void UIManager();
+
+    void MonitorListener();
 
    private:
     esp_lcd_panel_handle_t panel_ = nullptr;
     uint16_t* buf_ = nullptr;
     LcdDriver* lcd_ = nullptr;
+    PowerMonitor::Event* data_ = nullptr;
 };
