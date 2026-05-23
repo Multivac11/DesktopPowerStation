@@ -9,10 +9,12 @@ void PowerMonitor::PowerMonitorInit()
     {
         event_.bus_data_.ina_->Configure(0x056F);
         event_.bus_data_.ina_->SetShuntResistor(0.003f, 19.0f);
+        event_.bus_data_.not_found_ = false;
     }
     else
     {
         ESP_LOGE(TAG, "Bus INA226 not found");
+        event_.bus_data_.not_found_ = true;
     }
     for (int i = 0; i < 5; i++)
     {
@@ -21,10 +23,12 @@ void PowerMonitor::PowerMonitorInit()
         {
             event_.ina_data_[i].ina_->Configure(0x056F);
             event_.ina_data_[i].ina_->SetShuntResistor(0.005f, 7.0f);
+            event_.ina_data_[i].not_found_ = false;
         }
         else
         {
             ESP_LOGE(TAG, "INA226 %d not found", i);
+            event_.ina_data_[i].not_found_ = true;
         }
     }
 
@@ -42,7 +46,7 @@ void PowerMonitor::Monitor()
 {
     while (true)
     {
-        if (event_.bus_data_.ina_ != nullptr)
+        if (!event_.bus_data_.not_found_)
         {
             event_.bus_data_.bus_voltage_ = event_.bus_data_.ina_->ReadBusVoltage();
             if (event_.bus_data_.ina_->ReadCurrent() < 0.0f)
@@ -58,7 +62,7 @@ void PowerMonitor::Monitor()
 
         for (int i = 0; i < MAX_INA; i++)
         {
-            if (event_.ina_data_[i].ina_ != nullptr)
+            if (!event_.ina_data_[i].not_found_)
             {
                 event_.ina_data_[i].bus_voltage_ = event_.ina_data_[i].ina_->ReadBusVoltage();
                 if (event_.ina_data_[i].ina_->ReadCurrent() < 0.0f)

@@ -25,6 +25,7 @@ class PowerMonitor
         float shunt_voltage_ = 0.0f;
         float current_ = 0.0f;
         float power_ = 0.0f;
+        bool not_found_ = true;
     };
 
     struct Event

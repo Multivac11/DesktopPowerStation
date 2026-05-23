@@ -1,6 +1,8 @@
 #include "scene_manager.h"
 #include <cstdio>
 
+#include "ina226.h"
+
 static const char* TAG = "SceneManager";
 
 void SceneManager::SceneManagerInit()
@@ -134,10 +136,28 @@ void SceneManager::UIManager()
         lcd.DrawString(cx + 14, kCardY + 7, label, kPhosphor, kCardFill, kFont8x16);
     }
 
+    // 设备检测: 未找到的通道和BUS画错误提示
+    bool bus_ok = (I2CBusManager::GetInstance().GetDeviceByAddr<INA226>(0x40) != nullptr);
+    if (!bus_ok) lcd.DrawString(12, 10, "BUS OFFLINE", kColorRed, kColorBlack, kFont16x32);
+
     for (int i = 0; i < 5; ++i)
     {
         int cx = 4 + i * (kCardW + kCardGap);
-        DrawScanlines(lcd, cx + 8, kCardY + 20, kCardW - 16, kCardH - 32);
+        bool found = (I2CBusManager::GetInstance().GetDeviceByAddr<INA226>(0x41 + i) != nullptr);
+        if (!found)
+        {
+            int tx = cx + (kCardW - 9 * 16) / 2;  // "NO DEVICE" = 9 chars × 16px, center
+            char label[8];
+            snprintf(label, sizeof(label), "CH-%d", i + 1);
+            lcd.DrawString(tx, kCardY + kCardH / 2 - 36, label, kColorRed, kCardFill, kFont16x32);
+            lcd.DrawString(tx, kCardY + kCardH / 2 - 36 + 32, "OFFLINE", kColorRed, kCardFill, kFont16x32);
+        }
+    }
+
+    for (int i = 0; i < 5; ++i)
+    {
+        int cx = 4 + i * (kCardW + kCardGap);
+        DrawScanlines(lcd, cx + 8, kCardY + 22, kCardW - 16, kCardH - 32);
     }
 
     lcd.Flush(panel_);
@@ -151,7 +171,7 @@ void SceneManager::UIManager()
 
     while (true)
     {
-        if (data_ == nullptr)
+        if (!data_)
         {
             vTaskDelay(pdMS_TO_TICKS(70));
             continue;
@@ -161,21 +181,24 @@ void SceneManager::UIManager()
         char buf[64];
         bool dirty = false;
 
-        // SYS 数据
-        float bv = ev.bus_data_.bus_voltage_;
-        float ba = ev.bus_data_.current_;
-        float bw_val = ev.bus_data_.power_;
-        if (bv != old_bus_v || ba != old_bus_a || bw_val != old_bus_w)
+        // SYS 数据 (总线设备存在才显示)
+        if (ev.bus_data_.ina_ != nullptr)
         {
-            snprintf(buf, sizeof(buf), "SYS: %.3fV %.3fA %.3fW", bv, ba, bw_val);
-            int tw = strlen(buf) * 16;
-            lcd.FillRect(8, 7, tw + 22, 30, kColorBlack);
-            lcd.DrawString(12, 10, buf, kPhosphor, kColorBlack, kFont16x32);
-            old_bus_v = bv;
-            old_bus_a = ba;
-            old_bus_w = bw_val;
-            dirty = true;
-        }
+            float bv = ev.bus_data_.bus_voltage_;
+            float ba = ev.bus_data_.current_;
+            float bw_val = ev.bus_data_.power_;
+            if (bv != old_bus_v || ba != old_bus_a || bw_val != old_bus_w)
+            {
+                snprintf(buf, sizeof(buf), "SYS: %.3fV %.3fA %.3fW", bv, ba, bw_val);
+                int tw = strlen(buf) * 16;
+                lcd.FillRect(8, 7, tw + 22, 30, kColorBlack);
+                lcd.DrawString(12, 10, buf, kPhosphor, kColorBlack, kFont16x32);
+                old_bus_v = bv;
+                old_bus_a = ba;
+                old_bus_w = bw_val;
+                dirty = true;
+            }
+        }  // bus_data_.ina_ != nullptr
 
         // TEMP / FAN (右侧, TODO: 接入真实传感器)
         float temp = 32.5f;  // TODO: 从温度传感器读取
@@ -196,7 +219,7 @@ void SceneManager::UIManager()
         {
             int cx = 4 + i * (kCardW + kCardGap);
             auto& port = ev.ina_data_[i];
-            if (port.ina_ == nullptr) continue;
+            if (port.not_found_) continue;
 
             int x = cx + 12;
             int vy = kCardY + 28;
