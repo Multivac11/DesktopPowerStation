@@ -38,13 +38,20 @@ void SceneManager::MonitorListenerTask(void* pvParameters)
     static_cast<SceneManager*>(pvParameters)->MonitorListener();
 }
 
-static void DrawBar(LcdDriver& lcd, int x, int y, int w, int h, int r, float pct, uint16_t color)
+static void DrawSegmentedBar(
+    LcdDriver& lcd, int x, int y, int segs, int segW, int segH, int gap, float pct, uint16_t color)
 {
     if (pct < 0.0f) pct = 0.0f;
     if (pct > 1.0f) pct = 1.0f;
-    int fill = (int)(w * pct);
-    if (fill > 0) lcd.FillRect(x, y, fill, h, color);
-    lcd.DrawRoundRect(x, y, w, h, r, color);
+    int filled = (int)(segs * pct + 0.5f);
+    for (int i = 0; i < segs; ++i)
+    {
+        int sx = x + i * (segW + gap);
+        if (i < filled)
+            lcd.FillRect(sx, y, segW, segH, color);  // 实心
+        else
+            lcd.DrawRect(sx, y, segW, segH, color);  // 空心
+    }
 }
 
 static void DrawScanlines(LcdDriver& lcd, int x, int y, int w, int h)
@@ -124,8 +131,8 @@ void SceneManager::UIManager()
     {
         int cx = 6 + i * (kCardW + kCardGap);
         char label[8];
-        snprintf(label, sizeof(label), "CH-%d", i + 1);
-        lcd.DrawString(cx + 14, kCardY + 10, label, kPhosphorDim, kCardFill, kFont8x16);
+        snprintf(label, sizeof(label), "CH-%d >>", i + 1);
+        lcd.DrawString(cx + 14, kCardY + 7, label, kPhosphor, kCardFill, kFont8x16);
     }
 
     lcd.Flush(panel_);
@@ -154,10 +161,10 @@ void SceneManager::UIManager()
         float bw_val = ev.bus_data_.power_;
         if (bv != old_bus_v || ba != old_bus_a || bw_val != old_bus_w)
         {
-            snprintf(buf, sizeof(buf), "SYS  %.3fV  %.3fA  %.3fW", bv, ba, bw_val);
+            snprintf(buf, sizeof(buf), "SYS: %.3fV %.3fA %.3fW", bv, ba, bw_val);
             int tw = strlen(buf) * 16;
-            lcd.FillRect(8, 12, tw + 16, 30, kColorBlack);
-            lcd.DrawString(12, 14, buf, kPhosphor, kColorBlack, kFont16x32);
+            lcd.FillRect(8, 7, tw + 22, 30, kColorBlack);
+            lcd.DrawString(12, 10, buf, kPhosphor, kColorBlack, kFont16x32);
             old_bus_v = bv;
             old_bus_a = ba;
             old_bus_w = bw_val;
@@ -181,9 +188,10 @@ void SceneManager::UIManager()
             {
                 lcd.FillRect(x - 2, vy - 2, 164, 74, kCardFill);
                 DrawScanlines(lcd, x - 2, vy - 2, 164, 74);
-                snprintf(buf, sizeof(buf), "%.3fV", port.bus_voltage_);
+                snprintf(buf, sizeof(buf), "%.2f", port.bus_voltage_);
                 lcd.DrawString(x, vy, buf, kPhosphor, kCardFill, kFont24x48);
-                DrawBar(lcd, x, vy + 52, 158, 12, 3, port.bus_voltage_ / 20.0f, kBarHi);
+                lcd.DrawString(x + 4 * 24 + 24, vy + 14, "[V]", kPhosphorDim, kCardFill, kFont16x32);
+                DrawSegmentedBar(lcd, x, vy + 52, 20, 6, 12, 2, port.bus_voltage_ / 20.0f, kBarHi);
                 old_v[i] = port.bus_voltage_;
                 dirty = true;
             }
@@ -192,9 +200,10 @@ void SceneManager::UIManager()
             {
                 lcd.FillRect(x - 2, ay - 2, 164, 74, kCardFill);
                 DrawScanlines(lcd, x - 2, ay - 2, 164, 74);
-                snprintf(buf, sizeof(buf), "%.3fA", port.current_);
+                snprintf(buf, sizeof(buf), "%.3f", port.current_);
                 lcd.DrawString(x, ay, buf, kPhosphor, kCardFill, kFont24x48);
-                DrawBar(lcd, x, ay + 52, 158, 12, 3, port.current_ / 7.0f, kBarMid);
+                lcd.DrawString(x + 4 * 24 + 24, ay + 14, "[A]", kPhosphorDim, kCardFill, kFont16x32);
+                DrawSegmentedBar(lcd, x, ay + 52, 20, 6, 12, 2, port.current_ / 7.0f, kBarHi);
                 old_a[i] = port.current_;
                 dirty = true;
             }
@@ -203,9 +212,10 @@ void SceneManager::UIManager()
             {
                 lcd.FillRect(x - 2, wy - 2, 164, 74, kCardFill);
                 DrawScanlines(lcd, x - 2, wy - 2, 164, 74);
-                snprintf(buf, sizeof(buf), "%.3fW", port.power_);
+                snprintf(buf, sizeof(buf), "%.2f", port.power_);
                 lcd.DrawString(x, wy, buf, kPhosphor, kCardFill, kFont24x48);
-                DrawBar(lcd, x, wy + 52, 158, 12, 3, port.power_ / 140.0f, kBarLo);
+                lcd.DrawString(x + 4 * 24 + 24, wy + 14, "[W]", kPhosphorDim, kCardFill, kFont16x32);
+                DrawSegmentedBar(lcd, x, wy + 52, 20, 6, 12, 2, port.power_ / 140.0f, kBarHi);
                 old_w[i] = port.power_;
                 dirty = true;
             }
