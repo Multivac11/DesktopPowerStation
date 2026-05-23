@@ -139,6 +139,7 @@ void SceneManager::UIManager()
     lcd.Flush(panel_);
 
     float old_bus_v = -1, old_bus_a = -1, old_bus_w = -1;
+    float old_temp = -1, old_fan = -1;
     float old_v[5] = {-1, -1, -1, -1, -1};
     float old_a[5] = {-1, -1, -1, -1, -1};
     float old_w[5] = {-1, -1, -1, -1, -1};
@@ -168,6 +169,20 @@ void SceneManager::UIManager()
             old_bus_v = bv;
             old_bus_a = ba;
             old_bus_w = bw_val;
+            dirty = true;
+        }
+
+        // TEMP / FAN (右侧, TODO: 接入真实传感器)
+        float temp = 32.5f;  // TODO: 从温度传感器读取
+        float fan = 75.0f;   // TODO: 从风扇读取
+        if (temp != old_temp || fan != old_fan)
+        {
+            snprintf(buf, sizeof(buf), "T:%.1fC  F:%.0f%%", temp, fan);
+            int tw = strlen(buf) * 16;
+            lcd.FillRect(W - tw - 20, 7, tw + 20, 30, kColorBlack);
+            lcd.DrawString(W - tw - 28, 10, buf, kPhosphor, kColorBlack, kFont16x32);
+            old_temp = temp;
+            old_fan = fan;
             dirty = true;
         }
 
