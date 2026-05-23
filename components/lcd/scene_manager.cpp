@@ -146,7 +146,7 @@ void SceneManager::UIManager()
         bool found = (I2CBusManager::GetInstance().GetDeviceByAddr<INA226>(0x41 + i) != nullptr);
         if (!found)
         {
-            int tx = cx + (kCardW - 9 * 16) / 2;  // "NO DEVICE" = 9 chars × 16px, center
+            int tx = cx + (kCardW - 9 * 16) / 2;
             char label[8];
             snprintf(label, sizeof(label), "CH-%d", i + 1);
             lcd.DrawString(tx, kCardY + kCardH / 2 - 36, label, kColorRed, kCardFill, kFont16x32);
@@ -182,7 +182,7 @@ void SceneManager::UIManager()
         bool dirty = false;
 
         // SYS 数据 (总线设备存在才显示)
-        if (ev.bus_data_.ina_ != nullptr)
+        if (!ev.bus_data_.not_found_)
         {
             float bv = ev.bus_data_.bus_voltage_;
             float ba = ev.bus_data_.current_;
@@ -198,17 +198,17 @@ void SceneManager::UIManager()
                 old_bus_w = bw_val;
                 dirty = true;
             }
-        }  // bus_data_.ina_ != nullptr
+        }  // !ev.bus_data_.not_found_
 
         // TEMP / FAN (右侧, TODO: 接入真实传感器)
-        float temp = 32.5f;  // TODO: 从温度传感器读取
-        float fan = 75.0f;   // TODO: 从风扇读取
+        float temp = ev.temp_;  // TODO: 从温度传感器读取
+        float fan = 75.0f;      // TODO: 从风扇读取
         if (temp != old_temp || fan != old_fan)
         {
-            snprintf(buf, sizeof(buf), "T:%.1fC  F:%.0f%%", temp, fan);
+            snprintf(buf, sizeof(buf), "T:%.2fC  F:%.0f%%", temp, fan);
             int tw = strlen(buf) * 16;
-            lcd.FillRect(W - tw - 28, 7, tw + 20, 30, kColorBlack);
-            lcd.DrawString(W - tw - 36, 10, buf, kPhosphor, kColorBlack, kFont16x32);
+            lcd.FillRect(W - tw - 44, 7, tw + 20, 30, kColorBlack);
+            lcd.DrawString(W - tw - 52, 10, buf, kPhosphor, kColorBlack, kFont16x32);
             old_temp = temp;
             old_fan = fan;
             dirty = true;

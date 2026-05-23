@@ -32,6 +32,7 @@ class PowerMonitor
     {
         MonitorData bus_data_;
         MonitorData ina_data_[MAX_INA];
+        float temp_ = 0.0f;
     };
 
     PowerMonitor() = default;
@@ -52,6 +53,8 @@ class PowerMonitor
     MonitorData bus_data_;
 
     MonitorData ina_data_[MAX_INA] = {0};
+
+    TMP112* tmp112_ = nullptr;
 
     Event event_;
 

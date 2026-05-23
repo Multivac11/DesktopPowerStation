@@ -6,7 +6,7 @@
 class INA226 : public I2CDevice
 {
    public:
-        explicit INA226(i2c_master_bus_handle_t bus, uint16_t addr = 0x40);
+    explicit INA226(i2c_master_bus_handle_t bus, uint16_t addr = 0x40);
 
     // 基础配置
     bool Configure(uint16_t config_val = 0x056F);

@@ -4,6 +4,12 @@ static const char *TAG = "PowerMonitor";
 
 void PowerMonitor::PowerMonitorInit()
 {
+    tmp112_ = I2CBusManager::GetInstance().GetDeviceByAddr<TMP112>(0x48);
+    if (tmp112_ != nullptr)
+    {
+        tmp112_->Init();
+    }
+
     event_.bus_data_.ina_ = I2CBusManager::GetInstance().GetDeviceByAddr<INA226>(0x40);
     if (event_.bus_data_.ina_ != nullptr)
     {
@@ -46,6 +52,10 @@ void PowerMonitor::Monitor()
 {
     while (true)
     {
+        if (tmp112_ != nullptr)
+        {
+            event_.temp_ = tmp112_->ReadTemperature();
+        }
         if (!event_.bus_data_.not_found_)
         {
             event_.bus_data_.bus_voltage_ = event_.bus_data_.ina_->ReadBusVoltage();
