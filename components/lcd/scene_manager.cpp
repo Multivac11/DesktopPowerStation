@@ -201,8 +201,8 @@ void SceneManager::UIManager()
         }  // !ev.bus_data_.not_found_
 
         // TEMP / FAN (右侧, TODO: 接入真实传感器)
-        float temp = ev.temp_;  // TODO: 从温度传感器读取
-        float fan = 75.0f;      // TODO: 从风扇读取
+        float temp = ev.temp_;      // TODO: 从温度传感器读取
+        float fan = ev.fan_speed_;  // TODO: 从风扇读取
         if (temp != old_temp || fan != old_fan)
         {
             snprintf(buf, sizeof(buf), "T:%.2fC  F:%.0f%%", temp, fan);

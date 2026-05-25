@@ -2,6 +2,7 @@
 
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "fan_ctrl.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "i2c_bus.h"
@@ -33,6 +34,7 @@ class PowerMonitor
         MonitorData bus_data_;
         MonitorData ina_data_[MAX_INA];
         float temp_ = 0.0f;
+        uint8_t fan_speed_ = 0;
     };
 
     PowerMonitor() = default;
@@ -43,7 +45,11 @@ class PowerMonitor
 
     static void PowerMonitorTask(void*);
 
+    static void TempControlTask(void*);
+
     void Monitor();
+
+    void TempControl();
 
     bool RegisterListener(QueueHandle_t queue);
 

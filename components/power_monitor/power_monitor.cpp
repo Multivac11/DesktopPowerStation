@@ -4,6 +4,8 @@ static const char *TAG = "PowerMonitor";
 
 void PowerMonitor::PowerMonitorInit()
 {
+    FanCtrl::GetInstance().FanInit();
+    FanCtrl::GetInstance().SetFanSpeed(100);
     tmp112_ = I2CBusManager::GetInstance().GetDeviceByAddr<TMP112>(0x48);
     if (tmp112_ != nullptr)
     {
@@ -41,6 +43,7 @@ void PowerMonitor::PowerMonitorInit()
     ESP_LOGI(TAG, "PowerMonitorInit");
 
     xTaskCreatePinnedToCore(PowerMonitorTask, "MonitorTask", 8192, this, 2, nullptr, 1);
+    xTaskCreatePinnedToCore(TempControlTask, "TempControlTask", 4096, this, 2, nullptr, 1);
 }
 
 void PowerMonitor::PowerMonitorTask(void *pvParameters)
@@ -48,7 +51,12 @@ void PowerMonitor::PowerMonitorTask(void *pvParameters)
     static_cast<PowerMonitor *>(pvParameters)->Monitor();
 }
 
-void PowerMonitor::Monitor()
+void PowerMonitor::TempControlTask(void *pvParameters)
+{
+    static_cast<PowerMonitor *>(pvParameters)->TempControl();
+}
+
+void PowerMonitor::TempControl()
 {
     while (true)
     {
@@ -56,6 +64,41 @@ void PowerMonitor::Monitor()
         {
             event_.temp_ = tmp112_->ReadTemperature();
         }
+
+        float temp = event_.temp_;
+        uint8_t speed = event_.fan_speed_;  // 保留当前转速，用于滞回判断
+
+        if (temp >= 60.0f)
+        {
+            speed = 100;
+        }
+        else if (temp <= 38.0f)
+        {  // 停转阈值比起转阈值低 2°C
+            speed = 0;
+        }
+        else if (temp >= 40.0f && speed == 0)
+        {
+            // 温度升到 40°C 以上，且当前是停转状态，才启动
+            speed = static_cast<uint8_t>((temp - 40.0f) * 5.0f);
+        }
+        else if (temp > 40.0f && temp < 60.0f && speed > 0)
+        {
+            // 已经在转，正常跟随曲线
+            speed = static_cast<uint8_t>((temp - 40.0f) * 5.0f);
+        }
+        // 如果 temp 在 38~40°C 且已经在转，保持当前转速，避免抖动
+
+        event_.fan_speed_ = speed;
+        FanCtrl::GetInstance().SetFanSpeed(event_.fan_speed_);
+
+        vTaskDelay(pdMS_TO_TICKS(200));
+    }
+}
+
+void PowerMonitor::Monitor()
+{
+    while (true)
+    {
         if (!event_.bus_data_.not_found_)
         {
             event_.bus_data_.bus_voltage_ = event_.bus_data_.ina_->ReadBusVoltage();
