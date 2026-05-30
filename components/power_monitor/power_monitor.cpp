@@ -68,25 +68,25 @@ void PowerMonitor::TempControl()
         float temp = event_.temp_;
         uint8_t speed = event_.fan_speed_;  // 保留当前转速，用于滞回判断
 
-        if (temp >= 60.0f)
+        if (temp >= 40.0f)
         {
             speed = 100;
         }
-        else if (temp <= 38.0f)
+        else if (temp <= 33.0f)
         {  // 停转阈值比起转阈值低 2°C
             speed = 0;
         }
-        else if (temp >= 40.0f && speed == 0)
+        else if (temp >= 35.0f && speed == 0)
         {
-            // 温度升到 40°C 以上，且当前是停转状态，才启动
-            speed = static_cast<uint8_t>((temp - 40.0f) * 5.0f);
+            // 温度升到 45°C 以上，且当前是停转状态，才启动
+            speed = static_cast<uint8_t>((temp - 35.0f) * 20.0f);
         }
-        else if (temp > 40.0f && temp < 60.0f && speed > 0)
+        else if (temp > 35.0f && temp < 40.0f && speed > 0)
         {
             // 已经在转，正常跟随曲线
-            speed = static_cast<uint8_t>((temp - 40.0f) * 5.0f);
+            speed = static_cast<uint8_t>((temp - 35.0f) * 20.0f);
         }
-        // 如果 temp 在 38~40°C 且已经在转，保持当前转速，避免抖动
+        // 如果 temp 在 35~45°C 且已经在转，保持当前转速，避免抖动
 
         event_.fan_speed_ = speed;
         FanCtrl::GetInstance().SetFanSpeed(event_.fan_speed_);
